@@ -1,0 +1,34 @@
+;; What this vertical's robot physically does, declared for
+;; kotoba.robotics.process (kotoba-lang/robotics). `kbb -M:physics` runs it.
+;;
+;; README "Robotics premise": a plant scheduling/logistics coordination robot
+;; does crew scheduling, production/materials logging and raw-material and
+;; refractory supply for a glass and ceramics plant crew; it never operates
+;; the melting furnace or kiln. Its physical work: stacking refractory bricks
+;; delivered for a kiln reline, and checking the kiln shell temperature that
+;; tells whether the refractory lining still insulates.
+;;
+;; Every number without a cited source is marked `estimate` in its :basis.
+;; Replacing an estimate with a sourced value is this bot's growth work.
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isco-8181"
+ :cases
+ [{:id :refractory-brick-to-pallet
+   :kind :manipulator
+   :procedure "arm lifts a refractory brick from the delivery conveyor onto the upper course of a reline pallet"
+   :params {:l1-m 0.45 :l2-m 0.40 :m1-kg 3.5 :m2-kg 2.5
+            :from [0.60 0.05] :to [0.30 0.60] :duration-s 1.5 :steps 400}
+   :sweep {:param :payload-kg :values [1.0 2.0 3.5 5.0 7.0]}
+   :quantity :peak-tau1-nm
+   :limit {:max 60.0 :basis "estimate: continuous shoulder torque of a light collaborative arm (~5 kg class)"}
+   :boundary {:lo 0.1 :hi 20.0}}
+  {:id :kiln-shell-temperature
+   :kind :thermal
+   :procedure "insulating-firebrick kiln wall with the hot face held at 1200 C for an 8 hour firing; the robot reads the steel shell (back face)"
+   :params {:conductivity-w-mk 0.30 :density-kg-m3 800.0 :specific-heat-j-kgk 1000.0
+            :t0-c 25.0 :t-hot-c 1200.0 :front-fixed? true :t-back-ambient-c 25.0 :h-back-w-m2k 12.0
+            :threshold-c 80.0 :duration-s 28800.0 :nodes 21}
+   :sweep {:param :thickness-m :values [0.065 0.115 0.170 0.230 0.345]}
+   :quantity :final-back-c
+   :limit {:max 80.0 :basis "estimate: shell temperature above ~80 C taken as a sign the lining is too thin or failing"}
+   :boundary {:lo 0.05 :hi 0.5}}]}
