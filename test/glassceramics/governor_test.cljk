@@ -1,5 +1,5 @@
 (ns glassceramics.governor-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [glassceramics.store :as store]
             [glassceramics.advisor :as advisor]
             [glassceramics.governor :as governor]))
